@@ -4,3 +4,5 @@ build/
 .DS_Store
 site/dist/
 .vercel/
+.vercel
+.env*
