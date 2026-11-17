@@ -1,0 +1,226 @@
+/* —tuck site. HUD shell, document interior: Syne names, mono describes. */
+
+@font-face { font-family: "Syne"; font-weight: 600; font-display: swap; src: url("/fonts/syne-latin-600-normal.woff2") format("woff2"); }
+@font-face { font-family: "Geist Mono"; font-weight: 400; font-display: swap; src: url("/fonts/geist-mono-latin-400-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Geist Mono"; font-weight: 400; font-display: swap; src: url("/fonts/geist-mono-latin-ext-400-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "Geist Mono"; font-weight: 500; font-display: swap; src: url("/fonts/geist-mono-latin-500-normal.woff2") format("woff2"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "Geist Mono"; font-weight: 500; font-display: swap; src: url("/fonts/geist-mono-latin-ext-500-normal.woff2") format("woff2"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+
+:root {
+  color-scheme: dark;
+  --bg: #0b0b0a;
+  --fg: #e9e8e4;
+  --muted: #8d8b85;
+  --faint: #55534e;
+  --line: #24231f;
+  --chip: #1a1916;
+  --select: #2f6fe4;          /* macOS menu selection, the product's own UI */
+  --bar: rgba(10, 10, 10, 0.86);
+  --panel: rgba(32, 32, 30, 0.82);
+  --mono: "Geist Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --display: "Syne", var(--mono);
+  /* Same curve and timings as Tuck's Motion.swift. */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --enter: 180ms;
+  --exit: 120ms;
+  --swap: 160ms;
+  --resize: 200ms;
+}
+
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 14px/1.65 var(--mono);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+a { color: inherit; text-underline-offset: 3px; text-decoration-color: var(--faint); }
+a:hover { text-decoration-color: currentColor; }
+a:focus-visible, button:focus-visible { outline: 1px solid var(--fg); outline-offset: 3px; }
+kbd {
+  font: 500 12px/1 var(--mono);
+  padding: 2px 5px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: var(--chip);
+}
+
+/* Frame apparatus: viewport corner brackets. */
+.frame i { position: fixed; width: 14px; height: 14px; border: 0 solid var(--faint); pointer-events: none; z-index: 1; }
+.frame i:nth-child(1) { top: 12px; left: 12px; border-top-width: 1px; border-left-width: 1px; }
+.frame i:nth-child(2) { top: 12px; right: 12px; border-top-width: 1px; border-right-width: 1px; }
+.frame i:nth-child(3) { bottom: 12px; left: 12px; border-bottom-width: 1px; border-left-width: 1px; }
+.frame i:nth-child(4) { bottom: 12px; right: 12px; border-bottom-width: 1px; border-right-width: 1px; }
+
+/* Telemetry: true facts, computed at build. */
+.telemetry { padding: 32px 36px 0; }
+.telemetry dl { margin: 0; display: flex; flex-wrap: wrap; gap: 4px 20px; font-size: 11px; letter-spacing: 0.04em; }
+.telemetry div { display: flex; gap: 6px; }
+/* Labels are chrome; values stay verbatim (a hash is lowercase). */
+.telemetry dt { color: var(--faint); text-transform: uppercase; }
+.telemetry dd { margin: 0; color: var(--muted); }
+.telemetry dd::before { content: "["; color: var(--faint); }
+.telemetry dd::after { content: "]"; color: var(--faint); }
+.telemetry a { text-decoration: none; }
+
+main { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+
+/* Hero */
+.hero { text-align: center; padding: 96px 0 40px; }
+.wordmark { font: 600 clamp(64px, 14vw, 132px)/0.9 var(--display); letter-spacing: -0.03em; margin: 0 0 28px; }
+.claim { font-size: 16px; max-width: 30em; margin: 0 auto 6px; }
+.sub { color: var(--muted); margin: 0 0 28px; }
+.actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.button {
+  text-decoration: none;
+  color: var(--muted);
+  padding: 8px 4px;
+  transition: color 120ms ease;
+}
+.button:hover, .button.primary { color: var(--fg); }
+
+/* Demo: a slice of a notched MacBook's menu bar over a wallpaper. */
+.demo { margin: 32px auto 0; }
+.screen {
+  position: relative;
+  height: 340px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 85% 120%, rgba(255, 128, 48, 0.22), transparent 55%),
+    radial-gradient(80% 70% at 10% 110%, rgba(110, 90, 255, 0.20), transparent 60%),
+    linear-gradient(180deg, #121211, #0d0d0c);
+}
+.bar {
+  position: absolute; inset: 0 0 auto 0;
+  height: 32px;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 10px 0 14px;
+  background: var(--bar);
+  font: 500 12.5px/1 -apple-system, system-ui, sans-serif;
+  color: #f2f2f2;
+  user-select: none;
+}
+.bar-left { display: flex; gap: 16px; align-items: center; white-space: nowrap; }
+.bar-left b { font-weight: 700; }
+.apple { width: 11px; height: 13px; border-radius: 50% 50% 45% 45%; background: #f2f2f2; }
+.notch { position: absolute; left: 50%; top: 0; width: 180px; height: 32px; margin-left: -90px; background: #000; border-radius: 0 0 10px 10px; }
+.bar-right { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.glyph { display: inline-grid; place-items: center; width: 26px; height: 22px; color: #f2f2f2; }
+.glyph svg { width: 16px; height: 16px; }
+.clock { padding: 0 6px; }
+
+/* Tucked icons collapse into nothing; Arranging slides them back out. */
+.tucked {
+  display: flex; align-items: center; gap: 4px;
+  max-width: 0; opacity: 0; overflow: hidden;
+  transition: max-width var(--resize) var(--ease-out), opacity var(--swap) var(--ease-out);
+}
+.bar[data-arranging="true"] .tucked { max-width: 260px; opacity: 1; }
+.divider-label { color: rgba(242, 242, 242, 0.6); font-size: 11px; padding: 0 4px 0 6px; }
+.divider-line { width: 2px; height: 15px; border-radius: 1px; background: rgba(242, 242, 242, 0.6); margin-right: 6px; }
+
+.toggle {
+  all: unset;
+  display: inline-grid; place-items: center;
+  width: 30px; height: 24px; border-radius: 6px;
+  cursor: default;
+}
+.toggle[aria-expanded="true"], .toggle:hover { background: rgba(255, 255, 255, 0.16); }
+.toggle:focus-visible { outline: 1px solid #fff; outline-offset: 1px; }
+
+/* Panel: grows out of ⋯, top-right origin, exactly like the app. */
+.panel {
+  position: absolute; top: 38px; right: 120px;
+  width: 236px;
+  padding: 5px;
+  border-radius: 10px;
+  background: var(--panel);
+  backdrop-filter: blur(24px) saturate(1.4);
+  -webkit-backdrop-filter: blur(24px) saturate(1.4);
+  box-shadow: 0 0 0 0.5px rgba(255, 255, 255, 0.14), 0 12px 32px rgba(0, 0, 0, 0.45);
+  font: 400 13px/1 -apple-system, system-ui, sans-serif;
+  color: #f2f2f2;
+  transform-origin: top right;
+  overflow: hidden;
+  transition: height var(--resize) var(--ease-out);
+}
+.panel[hidden] { display: none; }
+.panel.entering { opacity: 0; transform: scale(0.96); }
+.panel.shown { opacity: 1; transform: none; transition: opacity var(--enter) var(--ease-out), transform var(--enter) var(--ease-out), height var(--resize) var(--ease-out); }
+.panel.leaving { opacity: 0; transform: scale(0.98); transition: opacity var(--exit) var(--ease-out), transform var(--exit) var(--ease-out); }
+.panel.instant, .panel.instant * { transition: none !important; }
+
+.panel-level.from-forward { opacity: 0; transform: translateX(8px); }
+.panel-level.from-back { opacity: 0; transform: translateX(-8px); }
+.panel-level.settled { opacity: 1; transform: none; transition: opacity var(--swap) var(--ease-out), transform var(--swap) var(--ease-out); }
+
+.row {
+  all: unset;
+  box-sizing: border-box;
+  display: flex; align-items: center; gap: 8px;
+  width: 100%; height: 26px; padding: 0 8px;
+  border-radius: 5px;
+  cursor: default;
+}
+.row.entry { height: 22px; }
+.row[aria-selected="true"] { background: var(--select); color: #fff; }
+.row .tile { width: 18px; height: 18px; border-radius: 4.5px; display: grid; place-items: center; color: #fff; }
+.row .tile svg { width: 12px; height: 12px; }
+.row .title { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.row .more { opacity: 0.6; }
+.label { height: 22px; padding: 0 8px; display: flex; align-items: center; color: rgba(242, 242, 242, 0.4); font-weight: 500; font-size: 12px; }
+.sep { height: 1px; margin: 4px 8px; background: rgba(255, 255, 255, 0.12); }
+.back { color: rgba(242, 242, 242, 0.55); font-weight: 600; font-size: 12px; height: 24px; }
+.panel-foot { padding: 6px 8px 2px; color: rgba(242, 242, 242, 0.35); font-size: 11px; }
+
+.demo-controls { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin: 14px 4px 0; font-size: 12px; }
+.hint { margin: 0; color: var(--muted); }
+.segmented { display: inline-flex; border: 1px solid var(--line); border-radius: 7px; padding: 2px; }
+.segmented button {
+  all: unset; padding: 4px 10px; border-radius: 5px; color: var(--muted); cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease;
+}
+.segmented button[aria-pressed="true"] { background: var(--chip); color: var(--fg); }
+.segmented button:active { transform: scale(0.97); }
+.readout { margin: 0; color: var(--faint); text-transform: uppercase; letter-spacing: 0.04em; font-size: 11px; }
+.readout output { color: var(--muted); text-transform: none; letter-spacing: 0; }
+
+/* Document interior */
+.doc { max-width: 640px; margin: 96px auto 0; }
+.doc h2 { font: 500 14px/1.4 var(--mono); margin: 0 0 12px; letter-spacing: 0.02em; }
+.doc h2 span { color: var(--faint); margin-right: 4px; }
+.doc p { margin: 0 0 12px; color: #cfcdc7; }
+.doc ul { margin: 0; padding: 0 0 0 18px; color: #cfcdc7; }
+.doc li { margin-bottom: 8px; }
+.doc li::marker { content: "– "; color: var(--faint); }
+.doc hr { border: 0; border-top: 1px dashed var(--line); margin: 36px 0; }
+.chip { font-size: 12px; padding: 1px 6px; border-radius: 4px; background: var(--chip); color: var(--fg); white-space: nowrap; }
+pre { margin: 0 0 14px; padding: 14px 16px; background: var(--chip); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; font-size: 13px; line-height: 1.7; }
+code { font-family: var(--mono); }
+
+footer { max-width: 640px; margin: 96px auto 0; padding: 24px 16px 56px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12px; display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+footer p { margin: 0; }
+
+/* Narrow screens: keep the right side of the bar, where —tuck lives. */
+@media (max-width: 760px) {
+  .telemetry { padding: 28px 20px 0; }
+  .hero { padding-top: 64px; }
+  .bar-left, .notch, .clock { display: none; }
+  .bar { justify-content: flex-end; }
+  .panel { right: 46px; }
+  .screen { height: 320px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .panel.entering, .panel.leaving { transform: none; }
+  .panel-level.from-forward, .panel-level.from-back { transform: none; }
+  .tucked { transition: opacity var(--swap) ease; }
+}
+
+/* The selection highlight is the focus indicator inside the menu. */
+.row:focus-visible { outline: none; }

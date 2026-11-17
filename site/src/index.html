@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>—tuck · a divider for the macOS 27 menu bar</title>
+  <meta name="description" content="A divider for the macOS 27 menu bar. Everything left of it goes into a panel. Small, open source, public APIs only.">
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0b0b0a">
+  <meta property="og:title" content="—tuck">
+  <meta property="og:description" content="A divider for the macOS 27 menu bar. Everything left of it goes into a panel.">
+  <meta property="og:url" content="https://tuck.ulasalyesil.com">
+  <meta property="og:type" content="website">
+  <link rel="canonical" href="https://tuck.ulasalyesil.com">
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/fonts/syne-latin-600-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/geist-mono-latin-400-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/demo.js" defer></script>
+</head>
+<body>
+  <div class="frame" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+  <header class="telemetry" aria-label="Build facts">
+    <dl>
+      <div><dt>Version</dt><dd>{{version}}</dd></div>
+      <div><dt>Commit</dt><dd><a href="https://github.com/ulasalyesil/tuck/commit/{{commitFull}}">{{commit}}</a></dd></div>
+      <div><dt>Swift files</dt><dd>{{swiftFiles}}</dd></div>
+      <div><dt>Tests</dt><dd>{{tests}}</dd></div>
+      <div><dt>Private APIs</dt><dd>0</dd></div>
+      <div><dt>License</dt><dd>MIT</dd></div>
+      <div><dt>Target</dt><dd>macOS 27</dd></div>
+    </dl>
+  </header>
+
+  <main>
+    <section class="hero">
+      <h1 class="wordmark">—tuck</h1>
+      <p class="claim">A divider for the macOS&nbsp;27 menu bar. Everything left of it goes into a panel.</p>
+      <p class="sub">Small, open source, public APIs only.</p>
+      <nav class="actions" aria-label="Get —tuck">
+        <a class="button primary" href="#install">[ Build from source ]</a>
+        <a class="button" href="https://github.com/ulasalyesil/tuck">[ GitHub ]</a>
+      </nav>
+    </section>
+
+    <section class="demo" aria-label="Interactive demo of the —tuck menu bar">
+      <div class="screen">
+        <div class="bar" data-arranging="false">
+          <div class="bar-left" aria-hidden="true">
+            <span class="apple"></span><b>Finder</b><span>File</span><span>Edit</span><span>View</span><span>Go</span>
+          </div>
+          <div class="notch" aria-hidden="true"></div>
+          <div class="bar-right">
+            <div class="tucked" aria-hidden="true">
+              <span class="glyph" data-glyph="clipboard"></span>
+              <span class="glyph" data-glyph="camera"></span>
+              <span class="glyph" data-glyph="timer"></span>
+              <span class="glyph" data-glyph="cloud"></span>
+              <span class="glyph" data-glyph="note"></span>
+              <span class="glyph" data-glyph="shield"></span>
+              <span class="divider-label">← tucked</span><span class="divider-line"></span>
+            </div>
+            <span class="glyph" data-glyph="wifi" aria-hidden="true"></span>
+            <span class="glyph" data-glyph="search" aria-hidden="true"></span>
+            <button class="toggle" type="button" aria-haspopup="menu" aria-expanded="false" aria-controls="panel" aria-label="Open tucked items">
+              <span class="glyph" data-glyph="ellipsis" aria-hidden="true"></span>
+            </button>
+            <span class="glyph" data-glyph="battery" aria-hidden="true"></span>
+            <span class="clock" aria-hidden="true">Tue 17 Nov 15:42</span>
+          </div>
+        </div>
+        <div class="panel" id="panel" role="menu" aria-label="Tucked items" hidden>
+          <div class="panel-level"></div>
+        </div>
+      </div>
+      <div class="demo-controls">
+        <p class="hint">Click <kbd>···</kbd> or press <kbd>⌃⌥M</kbd>.</p>
+        <div class="segmented" role="group" aria-label="Divider mode">
+          <button type="button" aria-pressed="true" data-mode="tucked">Tucked</button>
+          <button type="button" aria-pressed="false" data-mode="arranging">Arranging</button>
+        </div>
+        <p class="readout" aria-live="polite"><span>Last action</span> <output>none</output></p>
+      </div>
+    </section>
+
+    <article class="doc">
+      <section>
+        <h2><span aria-hidden="true">#</span> Why</h2>
+        <p>macOS&nbsp;27 draws the whole menu bar as one window. That broke every menu bar manager on the first beta, because they all moved the small per-icon windows that no longer exist. —tuck is built for the new bar instead of patched onto the old one.</p>
+      </section>
+
+      <hr>
+
+      <section>
+        <h2><span aria-hidden="true">#</span> Use</h2>
+        <ul>
+          <li>Click <kbd>···</kbd> or press <kbd>⌃⌥M</kbd>. Your tucked icons open in a panel.</li>
+          <li>Arrow keys move, a letter jumps, return opens, esc backs out.</li>
+          <li>Right-click <kbd>···</kbd> and choose Arrange Items. Hold <kbd>⌘</kbd> and drag icons across the “← tucked” line: left is tucked, right stays visible. Click <kbd>✓</kbd> when done.</li>
+          <li>Keep the drag on the bar. macOS removes an icon you drop off it.</li>
+        </ul>
+      </section>
+
+      <hr>
+
+      <section>
+        <h2><span aria-hidden="true">#</span> How it works</h2>
+        <p>The divider is sized to the exact free space next to the notch. One point wider and macOS hides the divider itself. Four points narrower is fine: no icon fits in four points.</p>
+        <p>Icons it pushes out land in Apple’s own overflow. —tuck reads them through Accessibility and lists them.</p>
+        <p>Some icons would open their menu below the bottom of the screen. —tuck opens that menu where you can’t see it, copies it into the panel and closes it. Picking an entry presses the real one.</p>
+        <p>Apple’s <kbd>«</kbd> arrow stays. It’s a second door to the same icons, and removing it would take private APIs.</p>
+      </section>
+
+      <hr>
+
+      <section>
+        <h2><span aria-hidden="true">#</span> Motion</h2>
+        <p>Pointer actions animate. The panel grows out of <kbd>···</kbd> in <span class="chip">180 ms</span> and leaves in <span class="chip">120 ms</span>. Keyboard actions never animate: a shortcut you press forty times a day should not make you wait. With Reduce Motion on, only the fades remain.</p>
+      </section>
+
+      <hr>
+
+      <section id="install">
+        <h2><span aria-hidden="true">#</span> Install</h2>
+        <pre><code>git clone https://github.com/ulasalyesil/tuck
+cd tuck &amp;&amp; ./build.sh
+open build/Tuck.app</code></pre>
+        <p>Then allow Tuck in System Settings → Privacy &amp; Security → Accessibility. It needs that to read and press other apps’ icons. It makes no network requests.</p>
+        <p>There is no signed download yet. You need macOS&nbsp;27 and Xcode’s Swift toolchain.</p>
+      </section>
+
+      <hr>
+
+      <section>
+        <h2><span aria-hidden="true">#</span> Limits</h2>
+        <ul>
+          <li>Popover icons hidden by the notch can only open their app, not the popover.</li>
+          <li>The panel shows app icons, not the menu bar glyph. The glyph would need Screen Recording.</li>
+          <li>Mirrored menus carry titles, check marks and submenus. Sliders and custom views don’t come through.</li>
+        </ul>
+      </section>
+    </article>
+  </main>
+
+  <footer>
+    <p>—tuck is MIT licensed. Made by Ulaş Alyeşil, part of <a href="https://ulasalyesil.com">ulasalyesil.com</a>.</p>
+    <p><a href="https://github.com/ulasalyesil/tuck">GitHub</a></p>
+  </footer>
+</body>
+</html>
