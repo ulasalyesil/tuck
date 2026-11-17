@@ -18,9 +18,15 @@ const swift = (dir) => walk(join(root, dir)).filter((f) => f.endsWith(".swift"))
 const commitFull = process.env.VERCEL_GIT_COMMIT_SHA
   || execSync("git rev-parse HEAD", { cwd: root }).toString().trim();
 
+const version = readFileSync(join(root, "build.sh"), "utf8")
+  .match(/CFBundleShortVersionString<\/key><string>([^<]+)</)?.[1];
+
+// Facts land in HTML text and an href: accept only the shapes they can have.
+if (!/^\d+(\.\d+){0,2}$/.test(version ?? "")) throw new Error(`build.sh version not found or malformed: ${version}`);
+if (!/^[0-9a-f]{40}$/.test(commitFull)) throw new Error(`commit is not a 40-char hex SHA: ${commitFull}`);
+
 const facts = {
-  version: readFileSync(join(root, "build.sh"), "utf8")
-    .match(/CFBundleShortVersionString<\/key><string>([^<]+)</)[1],
+  version,
   commit: commitFull.slice(0, 7),
   commitFull,
   swiftFiles: swift("Sources").length,
@@ -35,7 +41,7 @@ cpSync(join(site, "src"), dist, { recursive: true });
 const page = join(dist, "index.html");
 const html = readFileSync(page, "utf8").replace(/\{\{(\w+)\}\}/g, (_, key) => {
   if (!(key in facts)) throw new Error(`No value for {{${key}}}`);
-  return String(facts[key]);
+  return String(facts[key]).replace(/[&<>"']/g, (c) => `&#${c.charCodeAt(0)};`);
 });
 writeFileSync(page, html);
 
